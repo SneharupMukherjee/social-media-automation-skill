@@ -49,14 +49,14 @@ Discovers top-performing short-form video content across Instagram and TikTok us
 
 ```mermaid
 flowchart TD
-    User([User / Caller]) -->|1. Interactive Interview / Criteria| Orchestrator[Automation Orchestrator]
-    Orchestrator -->|2a. Reels & Hashtag Query| IG_API[Instagram Reels & Hashtags API: AnyAPI]
-    Orchestrator -->|2b. Video Search Query| TT_API[TikTok Video Search API: TikHub]
-    IG_API -->|Raw Reels / Posts| Normalizer[Data Normalization Layer]
-    TT_API -->|Raw TikTok Videos| Normalizer
-    Normalizer --> Filter[Filter & Ranking Engine]
-    Filter -->|Criteria: >=100K Views, >=100 Comments, Last 30 Days| RankedResults[Ranked & Flagged Output]
-    RankedResults -->|Table with Viral Tag (>=500K)| Output([Client Output / Next Step])
+    User(["User / Caller"]) -->|"1. Interactive Interview / Criteria"| Orchestrator["Automation Orchestrator"]
+    Orchestrator -->|"2a. Reels & Hashtag Query"| IG_API["Instagram Reels & Hashtags API: AnyAPI"]
+    Orchestrator -->|"2b. Video Search Query"| TT_API["TikTok Video Search API: TikHub"]
+    IG_API -->|"Raw Reels / Posts"| Normalizer["Data Normalization Layer"]
+    TT_API -->|"Raw TikTok Videos"| Normalizer
+    Normalizer --> Filter["Filter & Ranking Engine"]
+    Filter -->|"Criteria: >=100K Views, >=100 Comments, Last 30 Days"| RankedResults["Ranked & Flagged Output"]
+    RankedResults -->|"Table with Viral Tag (>=500K)"| Output(["Client Output / Next Step"])
 ```
 
 ---
@@ -182,28 +182,29 @@ Extracts the content transcript from high-performing videos across Instagram, Ti
 
 ```mermaid
 flowchart TD
-    User([User / Caller]) -->|Target Post Selection / Default Most Viewed| Orchestrator[Analysis Orchestrator]
-    Orchestrator --> PlatformCheck{Detect Platform}
-    PlatformCheck -->|Instagram Reel| AnyAPI_IG[Instagram Reel Transcript: AnyAPI]
-    PlatformCheck -->|TikTok Video| AnyAPI_TT[TikTok Transcript: AnyAPI]
-    PlatformCheck -->|YouTube Video / Short| AnyAPI_YT[YouTube Transcript: AnyAPI]
+    User(["User / Caller"]) -->|"Target Post Selection / Default Most Viewed"| Orchestrator["Analysis Orchestrator"]
+    Orchestrator --> PlatformCheck{"Detect Platform"}
+    PlatformCheck -->|"Instagram Reel"| AnyAPI_IG["Instagram Reel Transcript: AnyAPI"]
+    PlatformCheck -->|"TikTok Video"| AnyAPI_TT["TikTok Transcript: AnyAPI"]
+    PlatformCheck -->|"YouTube Video / Short"| AnyAPI_YT["YouTube Transcript: AnyAPI"]
     
-    AnyAPI_IG --> FallbackLogic[Fallback Ingestion Engine]
+    AnyAPI_IG --> FallbackLogic["Fallback Ingestion Engine"]
     AnyAPI_TT --> FallbackLogic
     AnyAPI_YT --> FallbackLogic
 
-    subgraph FallbackLogic[Multi-Tier Transcript Extraction]
+    subgraph FallbackTiers["Multi-Tier Transcript Extraction"]
         direction TB
-        Tier1[1. Native Subtitles / Closed Captions]
-        Tier2[2. Audio Speech-to-Text Transcription]
-        Tier3[3. Caption Description Text Fallback]
-        Tier1 -->|If Missing| Tier2
-        Tier2 -->|If Silent / No Speech| Tier3
+        Tier1["1. Native Subtitles / Closed Captions"]
+        Tier2["2. Audio Speech-to-Text Transcription"]
+        Tier3["3. Caption Description Text Fallback"]
+        Tier1 -->|"If Missing"| Tier2
+        Tier2 -->|"If Silent / No Speech"| Tier3
     end
 
-    FallbackLogic --> StructuralParser[Narrative Decomposition Model]
-    StructuralParser --> ArcSegments[Extract Hook, Tension, Payoff + Timestamps + Rationale]
-    ArcSegments --> FinalDoc([Output Structured Analysis])
+    FallbackLogic --> Tier1
+    Tier3 --> StructuralParser["Narrative Decomposition Model"]
+    StructuralParser --> ArcSegments["Extract Hook, Tension, Payoff + Timestamps + Rationale"]
+    ArcSegments --> FinalDoc(["Output Structured Analysis"])
 ```
 
 ---
@@ -303,23 +304,23 @@ Evaluates the account baseline of creators behind viral posts (followers, posts,
 
 ```mermaid
 flowchart TD
-    User([User / Caller]) -->|Top 5 Viral Posts / Target Selection| Orchestrator[Creator Tracking Orchestrator]
+    User(["User / Caller"]) -->|"Top 5 Viral Posts / Target Selection"| Orchestrator["Creator Tracking Orchestrator"]
     
-    subgraph PrimaryPlatform[Primary Profile & Baseline Ingestion]
-        Orchestrator -->|IG Creator| AnyAPI_IG_Profile[Instagram Profile & User Reels: AnyAPI]
-        Orchestrator -->|TikTok Creator| TikHub_TT_Profile[TikTok Profile & Videos: TikHub]
+    subgraph PrimaryPlatform["Primary Profile & Baseline Ingestion"]
+        Orchestrator -->|"IG Creator"| AnyAPI_IG_Profile["Instagram Profile & User Reels: AnyAPI"]
+        Orchestrator -->|"TikTok Creator"| TikHub_TT_Profile["TikTok Profile & Videos: TikHub"]
     end
 
-    subgraph CrossPlatform[Cross-Platform Identity Discovery]
-        Orchestrator -->|Handle / Name Search| AnyAPI_TT_Search[TikTok User Search: AnyAPI]
-        Orchestrator -->|Handle / Name Search| AnyAPI_YT_Search[YouTube Search & Channel: AnyAPI]
+    subgraph CrossPlatform["Cross-Platform Identity Discovery"]
+        Orchestrator -->|"Handle / Name Search"| AnyAPI_TT_Search["TikTok User Search: AnyAPI"]
+        Orchestrator -->|"Handle / Name Search"| AnyAPI_YT_Search["YouTube Search & Channel: AnyAPI"]
     end
 
-    PrimaryPlatform --> MetricsEngine[Performance Metrics Engine]
+    PrimaryPlatform --> MetricsEngine["Performance Metrics Engine"]
     CrossPlatform --> MetricsEngine
 
-    MetricsEngine --> OutlierDetection[Calculate Median Views & Flag >= 3x Outliers]
-    OutlierDetection --> CreatorCard([Output Unified Creator Card])
+    MetricsEngine --> OutlierDetection["Calculate Median Views & Flag >= 3x Outliers"]
+    OutlierDetection --> CreatorCard(["Output Unified Creator Card"])
 ```
 
 ---
@@ -367,7 +368,7 @@ Return one card per creator including their bio, followers, cross-platform links
 
 1. **Sample Size**: Retrieve view counts for the last $N$ posts (default: $N = 20$).
 2. **Median Calculation**:
-   $$\text{Median Views} = \operatorname{median}(\{V_1, V_2, \dots, V_N\})$$
+   $$\text{Median Views} = \mathrm{median}(\{V_1, V_2, \dots, V_N\})$$
 3. **Breakout Threshold**:
    $$\text{Breakout Multiplier} \ge 3.0 \times \text{Median Views}$$
 4. **Outlier Ratio**:
@@ -408,32 +409,32 @@ Ingests raw audience comments from high-performing videos across Instagram, TikT
 
 ```mermaid
 flowchart TD
-    User([User / Caller]) -->|Target Post, Batch Limit <= 200, Focus Queries| Orchestrator[Comment Dissection Orchestrator]
+    User(["User / Caller"]) -->|"Target Post, Batch Limit <= 200, Focus Queries"| Orchestrator["Comment Dissection Orchestrator"]
     
-    Orchestrator --> PlatformCheck{Detect Platform}
-    PlatformCheck -->|Instagram Post/Reel| AnyAPI_IG_Comm[Instagram Comments: AnyAPI]
-    PlatformCheck -->|TikTok Video| AnyAPI_TT_Comm[TikTok Comments: AnyAPI]
-    PlatformCheck -->|YouTube Video/Short| AnyAPI_YT_Comm[YouTube Comments: AnyAPI]
+    Orchestrator --> PlatformCheck{"Detect Platform"}
+    PlatformCheck -->|"Instagram Post/Reel"| AnyAPI_IG_Comm["Instagram Comments: AnyAPI"]
+    PlatformCheck -->|"TikTok Video"| AnyAPI_TT_Comm["TikTok Comments: AnyAPI"]
+    PlatformCheck -->|"YouTube Video/Short"| AnyAPI_YT_Comm["YouTube Comments: AnyAPI"]
 
-    AnyAPI_IG_Comm --> Normalizer[Comment Ingestion & Pagination Loop]
+    AnyAPI_IG_Comm --> Normalizer["Comment Ingestion & Pagination Loop"]
     AnyAPI_TT_Comm --> Normalizer
     AnyAPI_YT_Comm --> Normalizer
 
-    Normalizer --> Classifier[Multi-Label Semantic Classifier]
+    Normalizer --> Classifier["Multi-Label Semantic Classifier"]
     
-    subgraph MultiLabelClassifier[Taxonomy Tagging]
-        Classifier --> Tag1[Competitor Mention]
-        Classifier --> Tag2[Audience Question]
-        Classifier --> Tag3[User Complaint]
-        Classifier --> Tag4[Praise / Validation]
+    subgraph MultiLabelClassifier["Taxonomy Tagging"]
+        Classifier --> Tag1["Competitor Mention"]
+        Classifier --> Tag2["Audience Question"]
+        Classifier --> Tag3["User Complaint"]
+        Classifier --> Tag4["Praise / Validation"]
     end
 
-    Tag1 --> Aggregator[Theme Clustering & Frequency Counter]
+    Tag1 --> Aggregator["Theme Clustering & Frequency Counter"]
     Tag2 --> Aggregator
     Tag3 --> Aggregator
     Tag4 --> Aggregator
 
-    Aggregator --> OutputCard([Structured Voice-of-Customer Report])
+    Aggregator --> OutputCard(["Structured Voice-of-Customer Report"])
 ```
 
 ---
@@ -560,37 +561,37 @@ Where direct publishing is supported, posts are published automatically via API.
 
 ```mermaid
 flowchart TD
-    User([User / Creator]) -->|A/B Creative, Target Accounts, Schedule| Orchestrator[Publishing & Telemetry Engine]
+    User(["User / Creator"]) -->|"A/B Creative, Target Accounts, Schedule"| Orchestrator["Publishing & Telemetry Engine"]
     
-    subgraph HumanApproval[Human-in-the-Loop Safeguard]
-        Orchestrator --> Preview[Render Variant A & B Previews]
-        Preview --> UserApproval{Explicit User Confirmation?}
-        UserApproval -->|No / Edit| Orchestrator
-        UserApproval -->|Yes / Confirmed| Dispatcher[Platform Dispatcher]
+    subgraph HumanApproval["Human-in-the-Loop Safeguard"]
+        Orchestrator --> Preview["Render Variant A & B Previews"]
+        Preview --> UserApproval{"Explicit User Confirmation?"}
+        UserApproval -->|"No / Edit"| Orchestrator
+        UserApproval -->|"Yes / Confirmed"| Dispatcher["Platform Dispatcher"]
     end
 
-    subgraph PublishingChannels[Platform Dispatch]
-        Dispatcher -->|Direct Video Post| MetaAPI[Instagram Graph API / FB Graph API]
-        Dispatcher -->|Direct Video Post| YouTubeAPI[YouTube Data API v3]
-        Dispatcher -->|Direct Post| XAPI[X / Twitter API v2]
-        Dispatcher -->|Direct Post| LinkedInAPI[LinkedIn Community Management API]
-        Dispatcher -->|Draft Handoff / Upload| TikTokAPI[TikTok Content Posting API]
+    subgraph PublishingChannels["Platform Dispatch"]
+        Dispatcher -->|"Direct Video Post"| MetaAPI["Instagram Graph API / FB Graph API"]
+        Dispatcher -->|"Direct Video Post"| YouTubeAPI["YouTube Data API v3"]
+        Dispatcher -->|"Direct Post"| XAPI["X / Twitter API v2"]
+        Dispatcher -->|"Direct Post"| LinkedInAPI["LinkedIn Community Management API"]
+        Dispatcher -->|"Draft Handoff / Upload"| TikTokAPI["TikTok Content Posting API"]
     end
 
-    MetaAPI --> TelemetryScheduler[Telemetry Tracking Engine]
+    MetaAPI --> TelemetryScheduler["Telemetry Tracking Engine"]
     YouTubeAPI --> TelemetryScheduler
     XAPI --> TelemetryScheduler
     LinkedInAPI --> TelemetryScheduler
     TikTokAPI --> TelemetryScheduler
 
-    subgraph TelemetryIntervals[Side-by-Side Analytics]
-        TelemetryScheduler -->|T + 1h| M1[Snapshot 1h Metrics]
-        TelemetryScheduler -->|T + 6h| M6[Snapshot 6h Metrics]
-        TelemetryScheduler -->|T + 24h| M24[Snapshot 24h Metrics]
-        TelemetryScheduler -->|T + 48h| M48[Snapshot 48h Metrics]
+    subgraph TelemetryIntervals["Side-by-Side Analytics"]
+        TelemetryScheduler -->|"T + 1h"| M1["Snapshot 1h Metrics"]
+        TelemetryScheduler -->|"T + 6h"| M6["Snapshot 6h Metrics"]
+        TelemetryScheduler -->|"T + 24h"| M24["Snapshot 24h Metrics"]
+        TelemetryScheduler -->|"T + 48h"| M48["Snapshot 48h Metrics"]
     end
 
-    M1 --> ComparisonReport([Side-by-Side A/B Performance Table])
+    M1 --> ComparisonReport(["Side-by-Side A/B Performance Table"])
     M6 --> ComparisonReport
     M24 --> ComparisonReport
     M48 --> ComparisonReport
