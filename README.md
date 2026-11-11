@@ -49,9 +49,9 @@ Discovers top-performing short-form video content across Instagram and TikTok us
 
 ```mermaid
 flowchart TD
-    User(["User / Caller"]) -->|"1. Interactive Interview / Criteria"| Orchestrator["Automation Orchestrator"]
-    Orchestrator -->|"2a. Reels & Hashtag Query"| IG_API["Instagram Reels & Hashtags API: AnyAPI"]
-    Orchestrator -->|"2b. Video Search Query"| TT_API["TikTok Video Search API: TikHub"]
+    User(["User / Caller"]) -->|"1) Interactive Interview / Criteria"| Orchestrator["Automation Orchestrator"]
+    Orchestrator -->|"2a) Reels & Hashtag Query"| IG_API["Instagram Reels & Hashtags API: AnyAPI"]
+    Orchestrator -->|"2b) Video Search Query"| TT_API["TikTok Video Search API: TikHub"]
     IG_API -->|"Raw Reels / Posts"| Normalizer["Data Normalization Layer"]
     TT_API -->|"Raw TikTok Videos"| Normalizer
     Normalizer --> Filter["Filter & Ranking Engine"]
@@ -194,9 +194,9 @@ flowchart TD
 
     subgraph FallbackTiers["Multi-Tier Transcript Extraction"]
         direction TB
-        Tier1["1. Native Subtitles / Closed Captions"]
-        Tier2["2. Audio Speech-to-Text Transcription"]
-        Tier3["3. Caption Description Text Fallback"]
+        Tier1["1) Native Subtitles / Closed Captions"]
+        Tier2["2) Audio Speech-to-Text Transcription"]
+        Tier3["3) Caption Description Text Fallback"]
         Tier1 -->|"If Missing"| Tier2
         Tier2 -->|"If Silent / No Speech"| Tier3
     end
